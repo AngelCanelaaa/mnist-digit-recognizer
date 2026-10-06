@@ -17,9 +17,7 @@ Mac M3 (Apple Silicon) — macOS
 Este proyecto implementa un sistema completo de reconocimiento de dígitos manuscritos usando una red neuronal entrenada con el dataset MNIST. El sistema consta de tres componentes principales:
 
 - Backend: API REST construida con FastAPI y Python que carga el modelo Keras y expone endpoints para hacer predicciones.
-
 - Contenedor Docker: La API se ejecuta dentro de un contenedor Docker con plataforma linux/amd64 para compatibilidad con Mac M3 (Apple Silicon).
-
 - Frontend: Página web con canvas interactivo donde el usuario dibuja un dígito del 0 al 9 y el modelo predice en tiempo real qué número es.
 
 El flujo completo es: el usuario dibuja en el navegador → el frontend convierte el canvas a imagen PNG → la envía a la API en Docker → el modelo Keras hace la predicción → el resultado se muestra en pantalla con porcentaje de confianza.
@@ -56,8 +54,8 @@ mnist-digit-recognizer/
 
 ## 3. Herramientas y Versiones
 
-|--------------------|-------------|-------------------------------------|
 | **Herramienta**    | **Versión** | **Propósito**                       |
+|--------------------|-------------|-------------------------------------|
 | Python             | 3.12.13     | Lenguaje base del proyecto          |
 | TensorFlow / Keras | 2.20.0      | Cargar y ejecutar el modelo de IA   |
 | FastAPI            | 0.115.0     | Framework para crear la API REST    |
@@ -89,7 +87,7 @@ pyenv install 3.12.13
 Para activar esta versión en el proyecto se inicializó pyenv correctamente (Anaconda sobreescribía la versión por defecto):
 
 ```bash
-eval "\$(pyenv init -)"
+eval "$(pyenv init -)"
 
 pyenv local 3.12.13
 
@@ -191,15 +189,10 @@ modelo = tf.keras.models.load_model("model/modelo_mnist.keras")
 El endpoint recibe una imagen PNG, la procesa y devuelve la predicción. Se implementó un preprocesamiento avanzado para mejorar la precisión con imágenes dibujadas a mano:
 
 - Umbralización: convierte píxeles grises (antialiasing del canvas) a blanco o negro puro, eliminando ruido.
-
 - Bounding box: detecta exactamente dónde está el número dibujado y recorta solo esa área, igual que MNIST.
-
 - Padding del 20%: agrega espacio alrededor del número para imitar el estilo del dataset MNIST.
-
 - Cuadrado: si el número quedó rectangular (como el 1), lo hace cuadrado para evitar distorsión al redimensionar.
-
 - Resize LANCZOS: algoritmo de alta calidad para reducir de 360x360 a 28x28 píxeles preservando detalles.
-
 - Detección de fondo: invierte colores automáticamente si detecta fondo blanco, ya que MNIST usa fondo negro.
 
 La respuesta incluye la clase predicha, la probabilidad de confianza y la distribución completa de probabilidades para los 10 dígitos:
@@ -291,17 +284,11 @@ http://localhost:8000
 Se creó el archivo frontend/index.html con las siguientes funcionalidades:
 
 - Canvas HTML5 de 360x360 píxeles con fondo negro y trazo blanco, igual que el formato MNIST.
-
 - Control de grosor del pincel con slider de 8 a 40 píxeles.
-
 - Predicción automática: 800ms después de soltar el lápiz llama a la API sin necesidad de presionar botón.
-
 - Panel de resultado: muestra el dígito detectado en grande con porcentaje de confianza.
-
 - Barras de probabilidad: visualización de la confianza del modelo para los 10 dígitos simultáneamente.
-
 - Historial de predicciones: guarda las últimas 12 predicciones de la sesión.
-
 - Verificación de conexión: al cargar comprueba si la API está disponible y muestra el estado.
 
 El frontend convierte el canvas a imagen PNG y la envía como multipart/form-data:
@@ -320,10 +307,10 @@ const r = await fetch('http://localhost:8000/predict', { method: 'POST', body: f
 
 ## 5. Problemas Encontrados y Soluciones
 
-|----|----|----|
 | **Problema** | **Causa** | **Solución** |
+|----|----|----|
 | python3.12 not found | Python 3.12 no estaba instalado | pyenv install 3.12.13 tras actualizar pyenv con brew |
-| pyenv no cambia versión | Anaconda sobreescribe el PATH | eval "\$(pyenv init -)" antes de usar pyenv |
+| pyenv no cambia versión | Anaconda sobreescribe el PATH | eval "$(pyenv init -)" antes de usar pyenv |
 | tensorflow-cpu no encontrado | No existe para ARM (Mac M3) | Usar tensorflow==2.20.0 en requirements.txt local |
 | Docker build falla en FROM | Plataforma no especificada en M3 | Agregar --platform linux/amd64 en FROM del Dockerfile |
 | Predicciones incorrectas | Canvas 360x360 vs MNIST 28x28 | Preprocesamiento: bounding box + cuadrado + LANCZOS |
@@ -333,8 +320,8 @@ const r = await fetch('http://localhost:8000/predict', { method: 'POST', body: f
 
 ## 6. Resultado Final
 
-|----|----|----|
 | **Componente** | **Estado** | **Detalle** |
+|----|----|----|
 | Python 3.12.13 |  Instalado | Via pyenv, coincide con Google Colab |
 | Entorno virtual venv |  Activo | Dependencias aisladas del sistema |
 | tensorflow 2.20.0 |  Instalado | Compatible con Apple Silicon M3 |
@@ -375,25 +362,25 @@ const r = await fetch('http://localhost:8000/predict', { method: 'POST', body: f
 ```bash
 [ Navegador / Frontend HTML ]
 
-\| fetch POST /predict (imagen PNG)
+| fetch POST /predict (imagen PNG)
 
 ↓
 
 [ Docker Puerto 8000:8000 ]
 
-\|
+|
 
 ↓
 
 [ FastAPI + Uvicorn (main.py) ]
 
-\| preprocesamiento de imagen
+| preprocesamiento de imagen
 
 ↓
 
 [ Modelo Keras (modelo_mnist.keras) ]
 
-\| predicción: 10 probabilidades
+| predicción: 10 probabilidades
 
 ↓
 
@@ -404,11 +391,11 @@ const r = await fetch('http://localhost:8000/predict', { method: 'POST', body: f
 
 ## 8. Referencia de Comandos Clave
 
-|----|----|
 | **Propósito** | **Comando** |
+|----|----|
 | Actualizar pyenv | brew update && brew upgrade pyenv |
 | Instalar Python 3.12 | pyenv install 3.12.13 |
-| Activar versión pyenv | eval "\$(pyenv init -)" && pyenv local 3.12.13 |
+| Activar versión pyenv | eval "$(pyenv init -)" && pyenv local 3.12.13 |
 | Crear entorno virtual | python -m venv venv |
 | Activar entorno virtual | source venv/bin/activate |
 | Instalar dependencias | pip install -r api/requirements.txt |
